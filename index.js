@@ -45,6 +45,7 @@
   }
   proto.emit = function(event) {
     var events = this._events[event]
+    if (!events) return
     var i = events.length
     while (i--) {
       (events[i].listener || events[i])()
@@ -82,7 +83,7 @@
  *  event1: [{ lis1: function(){} }, { lis2: function(){} }],
  *  event2: [{ lis1: function(){} }, { lis2: function(){} }],
  * }
- * var ee = new EventEmitter();
+ * var ee = new EventEmitter()
  * ee.on('event', handle)
  * ee.emit('event', handle)
  */
