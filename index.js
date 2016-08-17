@@ -1,36 +1,46 @@
 ;(function(name, context, factory) {
   if (typeof defined == 'function') defined(factory)
-  else if (typeof module != 'undefined') module.exports = factory
+  else if (typeof module != 'undefined') module.exports = factory()
   else context[name] = factory()
 })('EventMitter', this, function() {
   var proto = EventEmitter.prototype
   function EventEmitter() {
     this._events = {}
   }
-  proto.on = function(evt, listeners) {
-    if (typeof listeners === 'string') {
+  proto.on = function(event, listeners) {
+    if (typeof listeners === 'function') {
       listeners = [listeners]
     }
     if (!Array.isArray(listeners)) {
       throw new Error(listeners + 'is not a function or function[]')
     }
-    var events = this._events[ev1] || (this._events[evt] = [])
+    var events = this._events[event] || (this._events[event] = [])
     for (var i = 0, n = listeners.length; i < n; i++) {
       listeners[i].listener = listeners[i]
       events.push(listeners[i])
     }
     return this
   }
-  proto.once = function(event, listeners) {
+  function _oncewrap(target, event, listensers) {
     var fired = false
-    var self = this
-    function on() {
-      self.removeListener(event, listeners)
-      if (fired) return
-      fired = true
-      self.on(event, listeners)
+    function g() {
+      target.removeListener(event, g)
+      if (!fired) {
+        fired = true
+        if (typeof listensers === 'function') {
+          listensers = [listensers]
+        }
+        if (Array.isArray(listensers)) {
+          for (var i = 0, l = listensers.length; i < l; i++) {
+            listensers[i].apply(target, arguments)
+          }
+        }
+      }
     }
-    on.call(this, arguments)
+    return g
+  }
+  proto.once = function(event, listeners) {    
+    this.on(event, _oncewrap(this, event, listeners))
     return this
   }
   proto.emit = function(event) {
@@ -41,11 +51,11 @@
     }
     return this
   }
-  proto.removeListener = function(evt, listners) {
-    var events = this._events[evt]
+  proto.removeListener = function(event, listners) {
+    var events = this._events[event]
+    if (!events) return 
     var i = events.length
-    var index
-    if (typeof listners === 'string') {
+    if (typeof listners === 'function') {
       while(i--) {
         if ((events[i].listener || events[i]) === listners) {
           events.splice(i, 1)
@@ -53,14 +63,14 @@
       }
     } else if(Array.isArray(listners)) {
       for (var j = 0, l = listners.length; j < l; j++) {
-        this.removeListener(evt, listners[j])
+        this.removeListener(event, listners[j])
       }
     }
     return this
   }
 
-  proto.off = function(evt) {
-    delete this._events[evt]
+  proto.off = function(event) {
+    delete this._events[event]
     return this
   }
   return EventEmitter
@@ -68,10 +78,11 @@
 
 
 /**
- * this.events = {
- *  evt1: [{ lis1: function(){} }, { lis2: function(){} }],
- *  evt2: [{ lis1: function(){} }, { lis2: function(){} }],
+ * this._events = {
+ *  event1: [{ lis1: function(){} }, { lis2: function(){} }],
+ *  event2: [{ lis1: function(){} }, { lis2: function(){} }],
  * }
  * var ee = new EventEmitter();
  * ee.on('event', handle)
+ * ee.emit('event', handle)
  */

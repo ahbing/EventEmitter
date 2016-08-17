@@ -7,13 +7,13 @@ EventEmitter is a simple package for manage events and listeners.
 ### on(event, listener/listeners)
 
 - param ( String | RegExp ) evt - Name of the event to attach the listener to.
-- param ( String | Array ) listener - Method to be called when the event is emitted.
+- param ( Function | Array ) listener - Method to be called when the event is emitted.
 - return ( Object ) - Current instance of EventEmitter for chaining.
 
 ### once(event, listener/listeners)
 
 - param ( String | RegExp ) evt -  Name of the event to attach the listener to.
-- param ( String | Array ) listener - Method to be called when the event is emitted. If the function returns true then it will be removed after calling
+- param ( Function | Array ) listener - Method to be called when the event is emitted. If the function returns true then it will be removed after calling
 - return ( Object ) - Current instance of EventEmitter for chaining.
 
 ### off(event)
@@ -30,7 +30,7 @@ EventEmitter is a simple package for manage events and listeners.
 ### removeListener(event, listeners)
 
 - param ( String | RegExp ) evt - Name of event to remove some listeners
-- param ( String | Array ) listener - Method to be removed
+- param ( Function | Array ) listener - Method to be removed
 - return ( Object ) - Current instance of EventEmitter for chianing.
 
 
