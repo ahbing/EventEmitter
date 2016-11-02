@@ -46,6 +46,15 @@ describe('add event', function() {
   it('add listener as an invalid value', function() {
     expect(ee.on('add', 'add')).to.be.an('error');
     expect(ee.on('add', null)).to.be.an('error');
+  });
+  it('emit event with arguments', function() {
+    let callCount = 0;
+    let listener = function(v) { callCount = v};
+    ee.on('add', listener);
+    ee.emit('add', 2);
+    expect(callCount).to.equal(2);
+    ee.emit('add', [2, 3]);
+    expect(callCount).to.deep.equal([2, 3]);
   })
 });
 

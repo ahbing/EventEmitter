@@ -46,10 +46,19 @@
   }
   proto.emit = function(event) {
     var listeners = this._events[event];
+    var args;
+    if (arguments.length > 1) {
+      args = Array.prototype.slice.call(arguments, 1);
+    }
     if (!listeners) return;
     var i = listeners.length;
     while (i--) {
-      (listeners[i].listener || listeners[i])();
+      var listener = listeners[i].listener || listeners[i];
+      if (args && args.length) {
+        listener.apply(null, args);
+      } else {
+        listener();
+      }
     }
     return this;
   }
