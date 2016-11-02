@@ -1,8 +1,7 @@
 ;(function(name, context, factory) {
-  /* istanbul ignore if */
+  /* istanbul ignore next */
   if (typeof defined == 'function') defined(factory)
   else if (typeof module != 'undefined') module.exports = factory()
-  /* istanbul ignore next */
   else context[name] = factory() 
 })('EventMitter', this, function() {
   var proto = EventEmitter.prototype;
@@ -14,7 +13,7 @@
       listeners = [listeners];
     }
     if (!Array.isArray(listeners)) {
-      throw new Error(listeners + 'is not a function or function[]');
+      return new Error(listeners + 'is not a function or function[]');
     }
     var events = this._events[event] || (this._events[event] = []);
     for (var i = 0, n = listeners.length; i < n; i++) {
@@ -46,27 +45,28 @@
     return this;
   }
   proto.emit = function(event) {
-    var events = this._events[event];
-    if (!events) return;
-    var i = events.length;
+    var listeners = this._events[event];
+    if (!listeners) return;
+    var i = listeners.length;
     while (i--) {
-      (events[i].listener || events[i])();
+      (listeners[i].listener || listeners[i])();
     }
     return this;
   }
-  proto.removeListener = function(event, listners) {
-    var events = this._events[event];
-    if (!events) return;
-    var i = events.length;
-    if (typeof listners === 'function') {
+  proto.removeListener = function(event, listner) {
+    var listeners = this._events[event];
+    /* istanbul ignore if */
+    if (!listeners) return;
+    var i = listeners.length;
+    if (typeof listner === 'function') {
       while(i--) {
-        if ((events[i].listener || events[i]) === listners) {
-          events.splice(i, 1);
+        if ((listeners[i].listener || listeners[i]) === listner) {
+          listeners.splice(i, 1);
         }
       }
-    } else if(Array.isArray(listners)) {
-      for (var j = 0, l = listners.length; j < l; j++) {
-        this.removeListener(event, listners[j]);
+    } else if(Array.isArray(listner)) {
+      for (var j = 0, l = listner.length; j < l; j++) {
+        this.removeListener(event, listner[j]);
       }
     }
     return this;
@@ -78,14 +78,3 @@
   }
   return EventEmitter;
 });
-
-
-/**
- * this._events = {
- *  event1: [{ lis1: function(){} }, { lis2: function(){} }],
- *  event2: [{ lis1: function(){} }, { lis2: function(){} }],
- * }
- * var ee = new EventEmitter()
- * ee.on('event', handle)
- * ee.emit('event', handle)
- */
